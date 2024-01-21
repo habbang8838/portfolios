@@ -1,0 +1,82 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+    <link href="{% static 'css/lecture-preset.css' %}" rel="stylesheet">
+    <style>
+        @media (min-width: 768px) {
+            /* md 사이즈 이상일 때 */
+            .custom-border {
+                border-right: dotted;
+                border-bottom: none;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            /* md 사이즈 미만일 때 */
+            .custom-border {
+                border-right: none;
+                border-bottom: dotted;
+            }
+        }
+    </style>
+    <main class="mb-auto p-5" style="height: 100%; padding-top: 100px !important;">
+        <section style="">
+            <main class="pt-3 px-3 pb-1 contents-center container"
+                  style="height: 100%; border-radius: 0.5rem; max-width: 460px;">
+                <div class="my-3">
+                    <div class="lecture-form">
+                        <div class="mb-5" style="text-align: center;">
+                            <h5>청중을 구해조</h5>
+                            <h1>강의자 정보 입력</h1>
+                        </div>
+                        <form style="border-radius:10px; width:600px; border:1px solid lightgrey; padding: 30px;"
+                              method="post" class="lecture-form" onsubmit="return submitForm()">
+                            <div class="mb-3">
+                                <label for="lectureName" class="form-label">콘텐츠 제목</label>
+                                <input type="text" class="form-control" id="lectureName" name="topic"
+                                       placeholder="강의 제목을 입력하세요">
+                            </div>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">콘텐츠 카테고리</label>
+                                <select class="form-select" name="category" aria-label="Default select example">
+                                    <option selected value="교육용">교육용: 강의 및 워크숍, 학습 효과 분석</option>
+                                    <option value="기업용">기업용: 회의 및 프레젠테이션, 직원 교육</option>
+                                    <option value="공연예술">공연예술: 연극, 뮤지컬, 콘서트, 대중 강연</option>
+                                    <option value="정치사회">정치/사회: 선거 유세, 공공 포럼, 토론</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="timeInterval" class="form-label">피드백 간격 설정</label>
+                                <select class="form-select" name="term" aria-label="Default select example">
+                                    <option selected value="1">1분</option>
+                                    <option value="3">3분</option>
+                                    <option value="5">5분</option>
+                                    <option value="10">10분</option>
+                                    <option value="15">15분</option>
+                                </select>
+                            </div>
+                            <div class="mt-3" style="text-align: center;">
+                                <button class="btn" type="submit"
+                                        style="background-color: #73C5B7; color: white; width: 100%;">설정완료
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </section>
+    </main>
+    <script>
+        function submitForm() {
+            var lectureName = document.getElementById('lectureName').value;
+
+            if (lectureName.trim() === '') {
+                alert('강의 제목을 입력하세요.');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}

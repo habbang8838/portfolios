@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, 그리고 Bootstrap 기여자들">
+    <meta name="generator" content="Hugo 0.115.4">
+    <title>청중의소리를부탁해</title>
+    <link rel="canonical" href="https://getbootstrap.kr/docs/5.3/examples/sign-in/">
+    <link href="{% static 'css/login-page.css' %}" rel="stylesheet">
+    <link rel="icon" href="../../static/img/favicon.ico">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <meta name="theme-color" content="#712cf9">
+</head>
+<body class="d-flex align-items-center py-4 bg-body-tertiary" style="background-color: white !important;">
+
+<main class="form-signin w-100 m-auto" style="border-radius: 10px; border:1px solid #E6E6E6; max-width: 450px;">
+    <form method="post" id="login_form" name="login_form">
+        <a class="navbar-brand">
+            <img style="height:200px; margin: auto; display: block"
+                 src="{% static 'img/introduction-page-img/logo-06.png' %}"><br><br>
+        </a>
+
+        <div class="form-floating">
+            <input type="text" class="form-control"
+                   style="border-bottom-right-radius: 0; border-bottom-left-radius: 0; box-shadow: none; border:1px solid lightgrey"
+                   placeholder=""
+                   id="id" name="userid" required>
+            <label for="floatingInput">ID</label>
+        </div>
+        <div class="form-floating">
+            <input style="box-shadow: none; border:1px solid lightgrey" type="password" class="form-control" id="pw"
+                   name="password" placeholder="" required>
+            <label for="floatingPassword">Password</label>
+        </div>
+
+        <div class="form-check text-start my-3">
+            <input class="form-check-input" type="checkbox" id="flexCheckDefault" name="remember_me">
+            <label class="form-check-label" for="flexCheckDefault" style="color:black">
+                Remember me
+            </label>
+        </div>
+
+        <input type="hidden" name="next" value="{{ next }}">
+        <button style="font-weight: bold; margin-top: 30px;" class="btn w-100 py-2" type="submit" id="login_btn">로그인
+        </button>
+        <button id="cancel_btn" style="margin-top:10px;font-weight: bold;" class="btn w-100 py-2"
+                onclick="location.href='/'">취소
+        </button>
+    </form>
+    <div class="text-center pt-2">계정이 없으신가요?<a style="color:black; " class="text-center sign-up-button"
+                                               href="{% url 'user:signup' %}">
+        회원가입</a></div>
+    {#    <p>{{ error }}</p>#}
+</main>
+
+
+<script src="{% static 'js/login-page-alert.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%
+}
+
+.background-image {
+    width: 100%;
+    height: 100vh;
+    background-image: url(../img/cover-page-background.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #65aeaa;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.btn-container {
+    text-align: center
+}
+
+button {
+    padding: 1vw 2vw;
+    font-size: 1.2vw;
+    font-weight: 700;
+    background: linear-gradient(to right, #73c5b7, #66a3a3);
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .2);
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%)
+}
+
+button:hover {
+    padding: 12px 24px;
+    font-size: 16px
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 18px
+}
+
+@media screen and (min-width: 600px) {
+    button {
+        padding: 12px 24px;
+        font-size: 16px;
+        top: 75%
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    button {
+        padding: 15px 30px;
+        font-size: 18px;
+        top: 77%
+    }
+}

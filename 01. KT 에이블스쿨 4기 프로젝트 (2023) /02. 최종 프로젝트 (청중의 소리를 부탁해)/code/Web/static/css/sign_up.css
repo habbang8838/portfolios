@@ -1,0 +1,153 @@
+body {
+    margin: 0;
+    color: #000
+}
+
+div {
+    box-sizing: border-box
+}
+
+header {
+    text-align: center;
+    margin-top: 5%;
+    margin-bottom: -10px
+}
+
+header h4 {
+    margin-bottom: 0
+}
+
+header h2 {
+    margin: 0;
+    padding: 0
+}
+
+.user-inputs {
+    width: 100%;
+    margin: auto;
+    max-width: 450px
+}
+
+label {
+    font-weight: 700;
+    font-size: 16px;
+    margin-left: 3px
+}
+
+input {
+    height: 45px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    margin: 5px 0
+}
+
+.user-input-Privacy {
+    width: 100%;
+    padding: 10px
+}
+
+.btn {
+    display: inline-block;
+    margin: 0 5px;
+    background-color: #fff;
+    color: #73c5b7;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .3s ease
+}
+
+.btn-cancel, .btn-register {
+    color: #000;
+    border: 1px solid #e6e6e6;
+    width: 100%
+}
+
+.btn-cancel:hover {
+    border: 1px solid grey;
+    background-color: grey
+}
+
+.btn-register:hover {
+    border: 1px solid #181934
+}
+
+.img {
+    width: 100%
+}
+
+.fa {
+    cursor: pointer;
+    position: absolute;
+    padding: .5%
+}
+
+.test-class {
+    position: relative
+}
+
+#password {
+    width: 100%
+}
+
+#InputPassword {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 65%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #000
+}
+
+#InputConfirmPassword {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 65%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #000
+}
+
+button:hover {
+    background-color: #181934;
+    color: #fff;
+    transform: translateY(2px)
+}
+
+.check {
+    color: red;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+#checkUserIdButton {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 100px;
+    height: 45px;
+    margin: 5px;
+    display: inline-block;
+    background-color: #fff;
+    color: #73c5b7;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .3s ease
+}

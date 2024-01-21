@@ -1,0 +1,33 @@
+.user-inputs {
+    width: 27%;
+    padding: 30px;
+    margin: auto
+}
+
+.user-input-Privacy {
+    width: 100%;
+    padding: 10px
+}
+
+.lecture-form {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 420px
+}
+
+.btn {
+    background-color: #fff;
+    color: #73c5b7;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .3s ease
+}
+
+.btn-register {
+    float: right
+}

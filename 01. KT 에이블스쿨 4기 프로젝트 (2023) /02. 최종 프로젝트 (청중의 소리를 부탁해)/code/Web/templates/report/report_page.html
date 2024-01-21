@@ -1,0 +1,84 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- 핵심 테마 CSS (부트스트랩 포함) -->
+    <link href="{% static 'css/report-page.css' %}" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @media (min-width: 1200px) {
+            .chart-container {
+                flex-direction: column;
+            }
+
+        }
+
+        @media (max-width: 970px) {
+            .container-fluid {
+                padding-left: 0 !important;
+            }
+        }
+
+        .box {
+            margin-left: 30px;
+            margin-top: 60px;
+            margin-bottom: 50px;
+            border: 1px solid black;
+        }
+    </style>
+
+    <main style="padding-top: 80px !important;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light" style="height: 150px; padding:0">
+            <div class="container-fluid" style="padding-left: 100px;">
+                <h3 class="navbar-brand"
+                    style="font-size: 35px !important; ">{{ lecture.topic }}</h3>
+            </div>
+        </nav>
+        <div class="mb-auto p-5 container contents-center">
+            <div style="width: 100%">
+                <div style="display: flex; flex-direction: row;">
+                    {{ averages|json_script:"averages-data" }}
+                    <div class="lecture-content" style="width: 50%;">
+                        <h4>강의자</h4>
+                        <p>{{ lecture.user.name }}</p>
+                        <h4>카테고리</h4>
+                        <p>{{ lecture.category }}</p>
+                        <h4>강의 일자</h4>
+                        <p>{{ lecture.datetime|date:"Y.m.d" }}</p>
+                        <h4>강의 시간</h4>
+                        <p>{{ time_diff }}분</p>
+                    </div>
+                    <div class="lecture-content" style="width: 50%; padding: 0 50px;">
+                        <canvas id="emotionDoughnutChart" style="height: 391px"></canvas>
+                    </div>
+                </div>
+            </div>
+            <hr style="width: 100%">
+            <div class="chart-container" style="display: flex; flex-direction: row; margin-top:80px;">
+                <div style="padding-right: 20px;">
+                    <div>
+                        <canvas id="chart-left" style="width: 688px; height: 400px;"></canvas>
+                    </div>
+                    <hr style="border: 1px solid lightgrey">
+                    <div style="width: auto">
+                        <canvas id="chart-right" style="width: 688px; height: 400px;"></canvas>
+                    </div>
+                </div>
+                <div class="overall-feedback" style="border-left: 1px solid lightgrey;">
+                    <h4 style="padding: 12px; border-left: 5px solid black">피드백</h4>
+                    <div id="feedback-display" style="white-space: pre-wrap; padding: 20px; font-size: 20px;">
+                        그래프 위에 마우스를 올려 피드백을 확인하세요.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript">
+        const reactions = JSON.parse('{{ reactions_json|safe }}');
+        const averages = JSON.parse(document.getElementById('averages-data').textContent);
+    </script>
+
+    <script src="{% static 'js/report-chart.js' %}"></script>
+    <script src="{% static 'js/navbar_current_page_underline_effect.js' %}"></script>
+{% endblock %}
+

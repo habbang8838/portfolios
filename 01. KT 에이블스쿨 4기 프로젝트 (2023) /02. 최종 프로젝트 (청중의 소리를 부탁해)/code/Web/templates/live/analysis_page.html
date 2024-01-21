@@ -1,0 +1,139 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+    <!-- 핵심 테마 CSS (부트스트랩 포함) -->
+    <link href="{% static 'css/analysis-page.css' %}" rel="stylesheet">
+    <style>
+        @media (min-width: 768px) {
+            /* md 사이즈 이상일 때 */
+            .custom-border {
+                border-left: 1px solid lightgrey;
+            }
+
+            .col-md-8 {
+                flex: 0 0 auto;
+                width: 66%;
+            }
+
+            .col-md-4 {
+                flex: 0 0 auto;
+                width: 32.8%;
+            }
+
+            .row-md-column {
+                display: flex;
+                padding-right: 0;
+                padding-left: 0;
+                padding-top: 0.7rem;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            /* md 사이즈 미만일 때 */
+            .custom-border {
+                border-bottom: 1px solid lightgrey;
+            }
+
+            .row-md-column {
+                display: flex;
+                padding-right: 0;
+                padding-left: 0;
+                padding-top: 0.7rem;
+                justify-content: space-between;
+                flex-direction: column;
+            }
+
+            .react_container {
+                border-bottom: 1px solid lightgrey;
+            }
+        }
+
+        body {
+            overflow: auto;
+        }
+
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+    <main class="mb-auto p-5" style="padding-top: 80px !important;">
+        <section style="color:grey">
+            <main class="p-3 contents-center container row grid-sorting"
+                  style="height: 100%; margin-right: auto; margin-left: auto;">
+                <h2 class="page-section-heading text-left text-uppercase mb-0"
+                    style="padding-bottom:10px; margin-bottom: 0.4rem; border-bottom: 1px solid lightgrey">
+                    &bull; &nbsp;{{ topic }}</h2>
+                <div class="row-md-column" style="margin-top: 20px; padding: 0 !important;">
+                    <div class="col-12 col-md-8 p-3 analysis-card"
+                         style=" margin-bottom: 0.7rem;">
+                        <div>
+                            <div id="cam-container" style="width: 100%; height: 50%;">
+                                <video autoplay muted id="preview" width="100%" height="50%"
+                                       style="border-radius: 0.6rem;background-color:lightgrey"></video>
+                            </div>
+                            <br>
+                            <div id="timer-container">
+                                <div id="timer">
+                                    <span id="elapsed-time">00:00:00</span><br>
+                                </div>
+                            </div>
+                            <div class="button-center">
+                                <div id="id" data-id="{{ id }}"></div>
+                                <div id="term" data-term="{{ term }}"></div>
+                                <div>
+                                    <button style="width: 70%; height: 40px; background-color: #73C5B7; border: 1px solid #73C5B7;"
+                                            id="record-button"
+                                            class="record-button btn btn-primary btn-block"> 강의 시작
+                                    </button>
+                                </div>
+                                <div style="display: none;">
+                                    <button style="background-color: rgb(242,106,92); width: 70%; height: 40px;"
+                                            id="stop-button" class="stop-button btn btn-primary btn-block pause-button">
+                                        강의 종료
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fade_container col-12 col-md-4 p-3 analysis-card custom-border"
+                         style="margin-bottom: 0.7rem; padding: 0 !important;">
+                        <div style="width: 100%; text-align: left; font-weight: 800; padding-left:20px; font-size: 20px;">
+                            <span>&bull; &nbsp;현재 청중들의 반응</span>
+                        </div>
+                        <img id="emotionImage" style="margin-left:30px; margin-top:50px; width: 100%;"
+                             src="{% static 'img/emotion/smile.png' %}">
+                        <div class="react_container" id="concentrationTextElement"
+                             style="width: 100%; text-align: center;
+                             font-weight: 800; font-size: 30px; margin-left:30px;margin-top: 50px;">집중도: 50%
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+    </main>
+    <div id="loading" style="display: none;">
+        <img src="{% static 'img/loading.gif' %}">
+    </div>
+    <!-- Core theme JS-->
+    <script>
+        $(document).ready(function () {
+            $('#record-button').click(function () {
+                $(this).parent().hide();
+                $('#stop-button').parent().show();
+            });
+        });
+    </script>
+    <script src="{% static 'js/record.js' %}"></script>
+    <script src="{% static 'js/navbar_current_page_underline_effect.js' %}"></script>
+
+{% endblock %}
