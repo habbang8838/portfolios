@@ -1,0 +1,66 @@
+---
+title: "기과데_음식물쓰레기_프로젝트2"
+author: "20171306_박지수"
+date: '2021 12 7 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=TRUE}
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r}
+# CSV 파일 불러오기
+seoul_gu <- read.csv('서울 구별 배출량.csv')
+curr_pop <- read.csv('자치구단위 서울생활인구 일별 집계표.csv')
+
+curr_pop['X'] <- NULL # 불필요한 칼럼 삭제하기
+
+seoul_gu_sub <- seoul_gu[-1,] # 가장 위에 합계를 나타내는 행은 제외하기
+
+# 25개의 구 각각에 curr_pop에서 계산한 총생활인구수 변수 값을 추가하기
+for (i in 1:25) {
+seoul_gu_sub[i, '총생활인구수'] <- mean((curr_pop %>% filter(시군구명==levels(factor(curr_pop$시군구명))[i]))$총생활인구수)
+}
+
+
+```
+
+
+```{r}
+
+# 17개년 배출량 평균을 나타내는 칼럼을 추가하기
+seoul_gu_sub['배출량평균'] = (seoul_gu_sub['X2004년'] + seoul_gu_sub['X2005년'] + seoul_gu_sub['X2006년'] + seoul_gu_sub['X2007년'] + seoul_gu_sub['X2008년'] + seoul_gu_sub['X2009년'] + seoul_gu_sub['X2010년'] + seoul_gu_sub['X2011년'] +seoul_gu_sub['X2012년'] + seoul_gu_sub['X2013년'] + seoul_gu_sub['X2014년'] +seoul_gu_sub['X2015년'] +seoul_gu_sub['X2016년'] + seoul_gu_sub['X2017년'] + seoul_gu_sub['X2018년'] + seoul_gu_sub['X2019년'] +seoul_gu_sub['X2020년'])/17
+
+#단위 면적당 인구 파생변수 추가하기
+seoul_gu_sub['단위면적당인구'] = seoul_gu_sub['인구.합계.계.'] / seoul_gu_sub['면적.m.2.']
+
+
+lmseoul <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+세대+인구.합계.계.+세대당인구+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구))
+drop1(lmseoul ,test="F") # p-value가 가장 높은 인구.합계.계 변수를 제거하겠습니다.
+par(mfrow=c(3,3))
+termplot(lmseoul)
+
+lmseoul2 <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+세대+세대당인구+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구))
+drop1(lmseoul2 ,test="F") # p-value가 가장 높게 나온 세대 변수 제거
+par(mfrow=c(2,3))
+termplot(lmseoul2)
+
+lmseoul3 <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+세대당인구+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구)) 
+drop1(lmseoul3 ,test="F") # p-value가 가장 높게 나온 세대당 인구 제거
+par(mfrow=c(2,3))
+termplot(lmseoul3)
+
+lmseoul4 <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구))
+summary(lmseoul4) # 면적, 지역내총부가가치, 총생활인구수, 단위면적당 인구 이렇게 4가지 변수가 유의미한 것으로 판별할 수 있다.
+
+par(mfrow=c(2,2))
+termplot(lmseoul4)
+
+```
