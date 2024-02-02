@@ -1,0 +1,217 @@
+---
+title: "기과데_음식물쓰레기_프로젝트_part234"
+author: "20171306_박지수"
+date: '2021 12 8 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(reshape)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+
+# CSV 파일 불러오기
+seoul_gu <- read.csv('서울 구별 배출량.csv')
+curr_pop <- read.csv('자치구단위 서울생활인구 일별 집계표.csv')
+
+curr_pop['X'] <- NULL # 불필요한 칼럼 삭제하기
+
+seoul_gu_sub <- seoul_gu[-1,] # 가장 위에 합계를 나타내는 행은 제외하기
+
+# 25개의 구 각각에 curr_pop에서 계산한 총생활인구수 변수 값을 추가하기
+for (i in 1:25) {
+seoul_gu_sub[i, '총생활인구수'] <- mean((curr_pop %>% filter(시군구명==levels(factor(curr_pop$시군구명))[i]))$총생활인구수)
+}
+
+
+```
+
+
+```{r}
+# 17개년 배출량 평균을 나타내는 칼럼을 추가하기
+seoul_gu_sub['배출량평균'] = (seoul_gu_sub['X2004년'] + seoul_gu_sub['X2005년'] + seoul_gu_sub['X2006년'] + seoul_gu_sub['X2007년'] + seoul_gu_sub['X2008년'] + seoul_gu_sub['X2009년'] + seoul_gu_sub['X2010년'] + seoul_gu_sub['X2011년'] +seoul_gu_sub['X2012년'] + seoul_gu_sub['X2013년'] + seoul_gu_sub['X2014년'] +seoul_gu_sub['X2015년'] +seoul_gu_sub['X2016년'] + seoul_gu_sub['X2017년'] + seoul_gu_sub['X2018년'] + seoul_gu_sub['X2019년'] +seoul_gu_sub['X2020년'])/17
+
+#단위 면적당 인구 파생변수 추가하기
+seoul_gu_sub['단위면적당인구'] = seoul_gu_sub['인구.합계.계.'] / seoul_gu_sub['면적.m.2.']
+
+# drop1 함수를 사용해서 유의한 변수 찾기!!
+lmseoul <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+세대+인구.합계.계.+세대당인구+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구))
+drop1(lmseoul ,test="F") # p-value가 가장 높은 인구.합계.계 변수를 제거하겠습니다.
+par(mfrow=c(3,3))
+termplot(lmseoul)
+
+lmseoul2 <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+세대+세대당인구+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구))
+drop1(lmseoul2 ,test="F") # p-value가 가장 높게 나온 세대 변수 제거
+par(mfrow=c(2,3))
+termplot(lmseoul2)
+
+lmseoul3 <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+세대당인구+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구)) 
+drop1(lmseoul3 ,test="F") # p-value가 가장 높게 나온 세대당 인구 제거
+par(mfrow=c(2,3))
+termplot(lmseoul3)
+
+lmseoul4 <- with(seoul_gu_sub, lm(배출량평균~면적.m.2.+지역내총부가가치.당해년가격.+총생활인구수+단위면적당인구))
+summary(lmseoul4) # 면적, 지역내총부가가치, 총생활인구수, 단위면적당 인구 이렇게 4가지 변수가 유의미한 것으로 판별할 수 있다.
+
+par(mfrow=c(2,2))
+termplot(lmseoul4)
+```
+
+
+# 지역별로 24개년 쓰레기 배출량으로 시각화해보기
+```{r}
+
+
+whole <- read.csv('전국 배출량 데이터 96~19.csv')
+whole_s <- whole[-1, ]
+
+whole_s$X2006 <- ((whole_s$X2005 * 2) + (whole_s$X2008)) / 3 # 누락된 2006,07년 데이터는 2005년과 08년도의 3등분한 값으로 각각 대체하겠습니다.
+whole_s$X2007 <- ((whole_s$X2005) + (whole_s$X2008 * 2)) / 3
+
+whole_m<- melt(whole_s, id=c('시도별..톤.일','총인구수','세대수','세대당.인구', '지역내.총부가.가치.백만원.','면적.km.2.','생활인구.백만.'))
+
+colnames(whole_m) <- c("시도",'총인구수','세대수','세대당.인구','지역내.총부가.가치.백만원.','면적.km.2.','생활인구.백만.','년도','배출량')
+
+whole_m$년도 = gsub("[X]", "", whole_m$년도) # dplyr의 rename으로는 변수명을 숫자로 변경이 불가하여, melt함수를 사용하여 년도 데이터를 행으로 보낸 뒤, gsub을 사용하여 값을 대체하였습니다.
+
+whole_m$년도 <- as.numeric(whole_m$년도) # 년도 변수를 numeric 타입으로 변경
+# write.csv(whole_m, file='전국 배출량 데이터 96~19(수정).csv')
+
+whole_m_a <- whole_m %>% filter(시도 == '서울' | 시도 == '경기')
+whole_m_b <- whole_m %>% filter(시도 == '경남' | 시도 == '경북' | 시도 == '대구')
+whole_m_c <- whole_m %>% filter(시도 == '전북' | 시도 == '전남' | 시도 == '부산' | 시도 == '광주')
+whole_m_d <- whole_m %>% filter(시도 == '충북' | 시도 == '충남' | 시도 == '강원' | 시도 == '대전')
+whole_m_e <- whole_m %>% filter(시도 == '인천' | 시도 == '제주' | 시도 == '울산' | 시도 == '세종')
+
+a = ggplot(data=whole_m_a, aes(x=년도, y=배출량, col=시도))+geom_line()
+b = ggplot(data=whole_m_b, aes(x=년도, y=배출량, col=시도))+geom_line()
+c = ggplot(data=whole_m_c, aes(x=년도, y=배출량, col=시도))+geom_line()
+d = ggplot(data=whole_m_d, aes(x=년도, y=배출량, col=시도))+geom_line()
+e = ggplot(data=whole_m_e, aes(x=년도, y=배출량, col=시도))+geom_line()
+
+grid.arrange(a,b,c,d,e, nrow=3, ncol=2)
+```
+# part2에서 처럼 회귀분석 가보즈아~!
+```{r}
+# 누락값을 가공하지 않은 원데이터인 whole을 사용하겠습니다.
+whole_local <- whole[-1,] # 총계 데이터는 제외
+
+#단위 면적당 인구 파생변수 추가하기
+whole_local['단위면적당인구'] = whole_local['총인구수'] / whole_local['면적.km.2.']
+
+whole_local_m <- melt(whole_local, id=c('시도별..톤.일','총인구수','세대수','세대당.인구','지역내.총부가.가치.백만원.','면적.km.2.','생활인구.백만.','단위면적당인구'))
+colnames(whole_local_m) <- c("시도",'총인구수','세대수','세대당.인구','지역내.총부가.가치.백만원.','면적.km.2.','생활인구.백만.','단위면적당인구','년도','배출량')
+
+for (i in 1:17) {
+whole_local[i, '평균배출량'] <- mean((whole_local_m %>% filter(시도==levels(factor(whole_local_m$시도, levels=c("서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주")))[i]))$배출량, na.rm=T)
+}
+
+whole_local <- rename(whole_local, 시도 = 시도별..톤.일) # 칼럼명 변경
+
+lmwhole <- with(whole_local, lm(평균배출량~총인구수+세대수+세대당.인구+지역내.총부가.가치.백만원.+면적.km.2.+생활인구.백만.+단위면적당인구))
+drop1(lmwhole ,test="F") # p-value가 가장 높은 세대당.인구 변수를 제거하겠습니다.
+par(mfrow=c(3,3))
+termplot(lmwhole)
+
+lmwhole2 <- with(whole_local, lm(평균배출량~총인구수+세대수+지역내.총부가.가치.백만원.+면적.km.2.+생활인구.백만.+단위면적당인구))
+drop1(lmwhole2 ,test="F") # p-value가 가장 높은 면적 변수를 제거하겠습니다.
+par(mfrow=c(2,3))
+termplot(lmwhole2)
+
+lmwhole3 <- with(whole_local, lm(평균배출량~총인구수+세대수+지역내.총부가.가치.백만원.+생활인구.백만.+단위면적당인구))
+drop1(lmwhole3 ,test="F") # p-value가 가장 높은 지역내총부가가치 변수를 제거하겠습니다.
+par(mfrow=c(2,3))
+termplot(lmwhole3)
+
+lmwhole4 <- with(whole_local, lm(평균배출량~총인구수+세대수+생활인구.백만.+단위면적당인구))
+drop1(lmwhole4 ,test="F") # p-value가 가장 높은 생활인구 변수를 제거하겠습니다.
+par(mfrow=c(2,2))
+termplot(lmwhole4)
+
+lmwhole5 <- with(whole_local, lm(평균배출량~총인구수+세대수+단위면적당인구))
+drop1(lmwhole5 ,test="F") # 이번엔 총인구수, 세대수, 단위면적당 인구 변수가 배출량에 유의한 변수로 해석할 수 있습니다.
+par(mfrow=c(2,2))
+termplot(lmwhole5)
+```
+```{r}
+# 2005년도에 음식물쓰레기 직매립 금지로 분리배출 본격시행에 따른 효과를 비교하기 위해 05년도 이전과 이후의 음식물 쓰레기 배출량 평균을 비교
+library(dplyr)
+whole_05<-whole_m %>% filter(년도<= 2005);whole_05
+for (i in 1:17) {
+whole_local[i, '평균배출량<=2005'] <- mean((whole_05 %>% filter(시도==levels(factor(whole_05$시도, levels=c("서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주")))[i]))$배출량, na.rm=T);whole_local
+}
+whole_recent<-whole_m %>% filter(년도 > 2005)
+for (i in 1:17) {
+whole_local[i, '평균배출량>2005'] <- mean((whole_recent %>% filter(시도==levels(factor(whole_recent$시도, levels=c("서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주")))[i]))$배출량, na.rm=T);whole_local
+}
+t.test(whole_local$`평균배출량<=2005`,whole_local$`평균배출량>2005`,alternative="greater")
+# 위와 같은 결과는 인구가 늘어감에 따라 변동 여지
+getwd()
+pop05<-read.csv('인구__가구_및_주택읍면동_20211212124355.csv')
+pop05<-pop05[6:21,2]
+pop05<-append(pop05,0,after = 7)
+whole_local['인구_2005']<-as.numeric(pop05)
+factor(whole_local['평균배출량<=2005'])
+whole_local$`평균배출량<=2005`[is.nan(whole_local$`평균배출량<=2005`)]<-0
+whole_local['단위인구당 배출량<=2005']=whole_local['평균배출량<=2005'] / whole_local['인구_2005']
+whole_local['단위인구당 배출량>2005']=whole_local['평균배출량>2005']/whole_local['총인구수']
+t.test(whole_local$`단위인구당 배출량<=2005`,whole_local$`단위인구당 배출량>2005`,alternative="less")
+# 대립가설이 채택되므로 05년부터의 분리배출 본격화시행은 이후의 배출량 감소에 별 도움이 되지 못했다.
+```
+```{r}
+#  종량제 시행에 따른 효과 검증
+# 서울의 종량제 시행은 2013.6월.. 그러니 이 기간을 기점으로 배출량 평균을 비교
+seoul_m <- melt(seoul_gu_sub)
+colnames(seoul_m)<-c("서울구","년도","배출량")
+seoul_m$년도 = gsub("[X]", "", seoul_m$년도);seoul_m$년도 = gsub("[년]", "", seoul_m$년도)
+seoul_m$년도<-as.numeric(seoul_m$년도)
+seoul_13<-seoul_m %>% filter(년도<=2012 & 년도>=2010)
+for (i in 1:25) {
+seoul_gu_sub[i, '2009<평균배출량<2013'] <- mean((seoul_13 %>% filter(서울구==levels(factor(seoul_13$서울구, levels=c("강남구","강동구","강북구","강서구","관악구","광진구","구로구","금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구","서초구","성동구","성북구","송파구","양천구","영등포구","용산구","은평구","종로구","중구","중랑구")))[i]))$배출량, na.rm=T);seoul_gu_sub
+}
+seoul_17<-seoul_m %>% filter(년도<=2016 & 년도>=2014)
+for (i in 1:25) {
+seoul_gu_sub[i, '2013<평균배출량<2017'] <- mean((seoul_17 %>% filter(서울구==levels(factor(seoul_17$서울구, levels=c("강남구","강동구","강북구","강서구","관악구","광진구","구로구","금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구","서초구","성동구","성북구","송파구","양천구","영등포구","용산구","은평구","종로구","중구","중랑구")))[i]))$배출량, na.rm=T);seoul_gu_sub
+}
+t.test(seoul_gu_sub$`2009<평균배출량<2013`,seoul_gu_sub$`2013<평균배출량<2017`,alternative="greater")
+# p-value가 0.05이하가 안되면서 대립가설을 채택하지 못한다.-> 종량제가 그다지 효과가 없다?
+t.test(seoul_gu_sub$X2012년,seoul_gu_sub$X2014년)
+```
+```{r}
+# 종량제 시행 방안중 전용봉투제와 rfid 시스템간의 효과 비교
+filter(seoul_m,서울구=="강서구"|서울구=="양천구"|서울구=="강남구"|서울구=="서초구"|서울구=="종로구" )->seoul_1
+tapply(seoul_1$배출량,seoul_1$년도,mean)->k1
+
+filter(seoul_m,서울구=="영등포구"|서울구=="금천구")->seoul_2
+tapply(seoul_2$배출량,seoul_2$년도,mean)-> k2
+data<-data.frame(k1,k2)
+data
+plot(2004:2020,k1/k2)
+
+# 납부필증과 rfid 시스템간의 비교
+filter(seoul_m,서울구=="관악구"|서울구=="동작구"|서울구=="용산구"|서울구=="중구"|서울구=="성동구"|서울구=="광진구"|서울구=="동대문구"|서울구=="중랑구"|서울구=="성북구"|서울구=="강북구"|서울구=="노원구"|서울구=="은평구"|서울구=="서대문구"|서울구=="송파구"|서울구=="강동구" )->seoul_1
+tapply(seoul_1$배출량,seoul_1$년도,mean)->k1
+
+filter(seoul_m,서울구=="구로구"|서울구=="마포구"|서울구=="도봉구")->seoul_2
+tapply(seoul_2$배출량,seoul_2$년도,mean)-> k2
+data<-data.frame(k1,k2)
+plot(2004:2020,k1/k2)
+
+# 세대별 종량제와 단지별 종량제간의 비교
+filter(seoul_m,서울구=="강서구"|서울구=="양천구"|서울구=="강남구"|서울구=="서초구"|서울구=="종로구"|서울구=="영등포구"|서울구=="금천구" )->seoul_1
+tapply(seoul_1$배출량,seoul_1$년도,mean)->k1
+
+filter(seoul_m,서울구=="관악구"|서울구=="동작구"|서울구=="용산구"|서울구=="중구"|서울구=="성동구"|서울구=="광진구"|서울구=="동대문구"|서울구=="중랑구"|서울구=="성북구"|서울구=="강북구"|서울구=="노원구"|서울구=="은평구"|서울구=="서대문구"|서울구=="송파구"|서울구=="강동구"|서울구=="구로구"|서울구=="마포구"|서울구=="도봉구" )->seoul_2
+tapply(seoul_2$배출량,seoul_2$년도,mean)->k2
+plot(2004:2020,k1/k2)
+## 구 별로 인구차이나 다른 변수들이 있기 때문에 고려필요
+```
+# 일본의 음식물 쓰레기량이 감소추세임을 제시하고 일본의 음식물 쓰레기 감소 정책제시 그리고 추후연구로 "일본의 각종 음식물 쓰레기 감소 정책의 실효성 검증"을 제시
+
+# 일본의 경우 일인당 하루당 배출량이 1인가구:61.4g 2인가구:52.8g 3인이상가구: 32.2g으로 세대당 인구간 유의미한 차이를 보임
+
+
